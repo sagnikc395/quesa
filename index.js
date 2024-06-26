@@ -52,6 +52,7 @@ const parse = (content) => {
       eat("</script>");
     }
   };
+
   const parseElement = () => {
     // from bnf definition
     if (match("<")) {
@@ -61,21 +62,59 @@ const parse = (content) => {
       const attribute = parseAttributeList(); // check from a prior list of attributes possible
       eat(">");
 
+      const endTag = `</${tagName}>`;
+
       const element = {
         //a DOM node
         //ref: https://developer.mozilla.org/en-US/docs/Web/API/Element
         type: "Element",
         name: tagName,
         attribute,
-        children: [],
+        //here can pass a different condition
+        children: parseFragments(() => match(endTag)),
       };
+      eat(endTag);
+      return element;
     }
   };
 
   //for each type of node
-  const parseAttributeList = () => {};
-  const parseAttribute = () => {};
-  const parseExpression = () => {};
+  const parseAttributeList = () => {
+    //some whitespace and parse attirutes
+    const attributes = [];
+    skipWhiteSpace();
+
+    while (!match(">")) {
+      attributes.push(parseAttribute());
+      skipWhiteSpace();
+    }
+    return attributes;
+  };
+  const parseAttribute = () => {
+    //read while it matches and get the js from in between
+    const name = readWhileMatching(/[^=]/);
+    eat("={");
+    const value = parseJavaScript();
+    eat("}");
+    return {
+      type: "Attribute",
+      name,
+      value,
+    };
+  };
+  const parseExpression = () => {
+    //match the js in the svelte inside {}
+    if (match("{")) {
+      eat("{");
+      const expression = parseJavaScript();
+      eat("}");
+      return {
+        type: "Expression",
+        expression,
+        value,
+      };
+    }
+  };
   const parseText = () => {};
   const parseJavaScript = () => {};
 
@@ -102,6 +141,11 @@ const parse = (content) => {
       curr++;
     }
     return content.slice(startIdx, curr);
+  };
+
+  const skipWhiteSpace = () => {
+    //like readWhileMathcing until we hit the whitespaces
+    readWhileMatching(/[\s\n]/);
   };
 
   return ast;
