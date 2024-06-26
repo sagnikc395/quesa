@@ -115,8 +115,23 @@ const parse = (content) => {
       };
     }
   };
-  const parseText = () => {};
-  const parseJavaScript = () => {};
+  const parseText = () => {
+    // text -> is anything else, not a <></> or {}
+    const text = readWhileMatching(/[^<{]/);
+    if (text.trim() !== "") {
+      //if nonwhitespace we return
+      return {
+        type: "Text",
+        value: text,
+      };
+    }
+  };
+  const parseJavaScript = () => {
+    //parse the javascript using acorn
+    const jsRes = acorn.parseExpression(content, curr, { ecmaVersion: 2022 });
+    curr = jsRes.end;
+    return jsRes;
+  };
 
   const match = (str) => {
     //slice of the characters and check if it matches
