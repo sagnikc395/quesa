@@ -1,0 +1,22 @@
+{
+  "name": "quesa",
+  "version": "1.0.0",
+  "description": "- writing a frontend framework , a exploration into how frameworks like react,svelte are written.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "acorn": "^8.12.0",
+    "escodegen": "^2.1.0",
+    "estree-walker": "^3.0.3",
+    "periscope": "^0.1.0"
+  }
+}
