@@ -16,12 +16,12 @@ const parse = (content) => {
   const ast = {};
 
   //entry point
-  ast.html = parseFragments();
+  ast.html = parseFragments(() => curr < content.length);
 
-  const parseFragments = () => {
+  const parseFragments = (condn) => {
     // from the recursive defn of svelte bnf
     const fragments = [];
-    while (curr < content.length) {
+    while (condn()) {
       const fragment = parseFragment();
       if (fragment) {
         fragments.push(fragment);
@@ -52,7 +52,25 @@ const parse = (content) => {
       eat("</script>");
     }
   };
-  const parseElement = () => {};
+  const parseElement = () => {
+    // from bnf definition
+    if (match("<")) {
+      eat("<");
+      //regex on the tagname type
+      const tagName = readWhileMatching(/[a-z]/);
+      const attribute = parseAttributeList(); // check from a prior list of attributes possible
+      eat(">");
+
+      const element = {
+        //a DOM node
+        //ref: https://developer.mozilla.org/en-US/docs/Web/API/Element
+        type: "Element",
+        name: tagName,
+        attribute,
+        children: [],
+      };
+    }
+  };
 
   //for each type of node
   const parseAttributeList = () => {};
